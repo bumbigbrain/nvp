@@ -3,8 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"os"
+	"sync"
+
+	"github.com/songgao/water"
 )
 
 type Message struct {
@@ -47,6 +51,9 @@ func getInterfaceInfo(name string) (string, string, error) {
 }
 
 func main() {
+
+	var wg sync.WaitGroup
+
 	serverAddr := "192.168.122.1:8080" // Using default UDP port 53, adjust if needed
 
 	// Get interface information
@@ -106,4 +113,39 @@ func main() {
 	}
 
 	fmt.Printf("Received %d bytes from %v: %s\n", n, remoteAddr, string(buffer[:n]))
+
+	// Start packet reader and UDP sender
+
+	// Create TAP interface
+	config := water.Config{
+		DeviceType: water.TAP,
+		PlatformSpecificParams: water.PlatformSpecificParams{
+			Name: "nvp-tap",
+		},
+	}
+	tapInterface, err := water.New(config)
+	if err != nil {
+		log.Fatalf("Failed to create TAP interface: %v", err)
+	}
+	defer tapInterface.Close()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		buffer := make([]byte, 2048) // Buffer for reading packets
+		for {
+			n, err := tapInterface.Read(buffer)
+			if err != nil {
+				log.Printf("Error reading from TAP interface: %v", err)
+				continue
+			}
+
+			// Send packet to UDP server
+			_, err = conn.WriteToUDP(buffer[:n], udpAddr)
+			if err != nil {
+				log.Printf("Error sending packet to UDP server: %v", err)
+			}
+		}
+	}()
+	wg.Wait()
 }
