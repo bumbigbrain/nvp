@@ -106,13 +106,17 @@ func main() {
 	buffer := make([]byte, 1024)
 
 	// Read response from server
-	n, remoteAddr, err := conn.ReadFromUDP(buffer)
-	if err != nil {
-		fmt.Printf("Error reading from server: %v\n", err)
-		return
-	}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		n, remoteAddr, err := conn.ReadFromUDP(buffer)
+		if err != nil {
+			fmt.Printf("Error reading from server: %v\n", err)
+			return
+		}
 
-	fmt.Printf("Received %d bytes from %v: %s\n", n, remoteAddr, string(buffer[:n]))
+		fmt.Printf("Received %d bytes from %v: %s\n", n, remoteAddr, string(buffer[:n]))
+	}()
 
 	// Start packet reader and UDP sender
 
