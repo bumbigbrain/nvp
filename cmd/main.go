@@ -134,11 +134,14 @@ func main() {
 		defer wg.Done()
 		buffer := make([]byte, 2048) // Buffer for reading packets
 		for {
+			log.Println("reading interface....")
 			n, err := tapInterface.Read(buffer)
 			if err != nil {
 				log.Printf("Error reading from TAP interface: %v", err)
 				continue
 			}
+
+			log.Printf("Received packet: %s\n", string(buffer[:n]))
 
 			// Send packet to UDP server
 			_, err = conn.WriteToUDP(buffer[:n], udpAddr)
