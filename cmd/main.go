@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -145,13 +146,13 @@ func main() {
 				continue
 			}
 
-			log.Printf("Received packet: %s\n", string(buffer[:n]))
+			log.Printf("Received packet: %s\n", hex.Dump(buffer[:n]))
 
 			// Send packet to UDP server
-			_, err = conn.WriteToUDP(buffer[:n], udpAddr)
-			if err != nil {
-				log.Printf("Error sending packet to UDP server: %v", err)
-			}
+			// _, err = conn.WriteToUDP(hex.Dump(buffer[:n], udpAddr)
+			// if err != nil {
+			// 	log.Printf("Error sending packet to UDP server: %v", err)
+			// }
 		}
 	}()
 	wg.Wait()
