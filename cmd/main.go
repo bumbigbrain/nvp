@@ -7,10 +7,9 @@ import (
 	"os"
 )
 
-type StartMessage struct {
-	Type      string `json:"type"`
-	IPAddress string `json:"ipAddress"`
-	MacAddr   string `json:"MAC_ADDRESS"`
+type Message struct {
+	IsInitialized bool   `json:"isInitialized"`
+	SourceMacAddr string `json:"sourceMacAddr"`
 }
 
 func getInterfaceInfo(name string) (string, string, error) {
@@ -51,17 +50,16 @@ func main() {
 	serverAddr := "192.168.122.1:8080" // Using default UDP port 53, adjust if needed
 
 	// Get interface information
-	ipAddr, macAddr, err := getInterfaceInfo("nvp-tap")
+	_, macAddr, err := getInterfaceInfo("nvp-tap")
 	if err != nil {
 		fmt.Printf("Error getting interface info: %v\n", err)
 		os.Exit(1)
 	}
 
 	// Create message
-	msg := StartMessage{
-		Type:      "onStart",
-		IPAddress: ipAddr,
-		MacAddr:   macAddr,
+	msg := Message{
+		IsInitialized: true,
+		SourceMacAddr: macAddr,
 	}
 
 	// Marshal message to JSON
