@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"sync"
-	"time"
 
 	"github.com/songgao/water"
 )
@@ -40,38 +39,38 @@ func main() {
 	done := make(chan bool)
 
 	// Start writer goroutine
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		// Sample packet (a simple ethernet frame)
-		packet := []byte{
-			0xff, 0xff, 0xff, 0xff, 0xff, 0xff, // Destination MAC (broadcast)
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Source MAC
-			0x08, 0x00, // Ethertype (IPv4)
-			// Payload
-			0x45, 0x00, 0x00, 0x1c, // IPv4 header
-			0x00, 0x00, 0x40, 0x00,
-			0x40, 0x11, 0x00, 0x00,
-			0x0a, 0x00, 0x00, 0x01, // Source IP (10.0.0.1)
-			0x0a, 0x00, 0x00, 0x02, // Destination IP (10.0.0.2)
-		}
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	// Sample packet (a simple ethernet frame)
+	// 	packet := []byte{
+	// 		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, // Destination MAC (broadcast)
+	// 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // Source MAC
+	// 		0x08, 0x00, // Ethertype (IPv4)
+	// 		// Payload
+	// 		0x45, 0x00, 0x00, 0x1c, // IPv4 header
+	// 		0x00, 0x00, 0x40, 0x00,
+	// 		0x40, 0x11, 0x00, 0x00,
+	// 		0x0a, 0x00, 0x00, 0x01, // Source IP (10.0.0.1)
+	// 		0x0a, 0x00, 0x00, 0x02, // Destination IP (10.0.0.2)
+	// 	}
 
-		for {
-			select {
-			case <-done:
-				fmt.Println("Writer stopping...")
-				return
-			default:
-				n, err := ifce.Write(packet)
-				if err != nil {
-					log.Printf("Error writing to interface: %v\n", err)
-					continue
-				}
-				fmt.Printf("Wrote %d bytes to %s\n", n, ifce.Name())
-				time.Sleep(time.Second) // Add delay to avoid flooding
-			}
-		}
-	}()
+	// 	for {
+	// 		select {
+	// 		case <-done:
+	// 			fmt.Println("Writer stopping...")
+	// 			return
+	// 		default:
+	// 			n, err := ifce.Write(packet)
+	// 			if err != nil {
+	// 				log.Printf("Error writing to interface: %v\n", err)
+	// 				continue
+	// 			}
+	// 			fmt.Printf("Wrote %d bytes to %s\n", n, ifce.Name())
+	// 			time.Sleep(time.Second) // Add delay to avoid flooding
+	// 		}
+	// 	}
+	// }()
 
 	// Start reader goroutine
 	wg.Add(1)
@@ -114,10 +113,10 @@ func main() {
 	// Wait for interrupt signal
 	<-interrupt
 	fmt.Println("\nReceived interrupt signal. Shutting down...")
-	
+
 	// Signal goroutines to stop
 	close(done)
-	
+
 	// Wait for goroutines to finish
 	wg.Wait()
 	fmt.Println("Program terminated gracefully")
