@@ -22,6 +22,7 @@ func (f *DownForwarder) Run() {
 	go func() {
 		defer f.wgGlobal.Done()
 		for {
+			log.Println("Down Forwarder: waiting for packet...")
 			var frame ethernet.Frame
 			frame.Resize(1500)
 			n, _, err := f.UdpConn.ReadFromUDP([]byte(frame))
@@ -29,7 +30,6 @@ func (f *DownForwarder) Run() {
 				log.Println("Error reading from UDP connection:", err)
 			}
 			frame = frame[:n]
-			log.Println("Down Forwarder: packet length=", n, ", src=", frame.Source(), ", dst=", frame.Destination(), ", type=0x", frame.Ethertype())
 			_, err = f.Ifce.Write([]byte(frame))
 			if err != nil {
 				log.Println("Error writing to TAP interface:", err)
