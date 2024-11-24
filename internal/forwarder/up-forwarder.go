@@ -35,9 +35,8 @@ func (f *UpForwarder) Run() {
 				log.Printf("TAP -> UDP: packet length=%d, src=%s, dst=%s, type=0x%x\n",
 					n, frame.Source(), frame.Destination(), frame.Ethertype())
 			}
-			log.Println("Up Forwarder: packet length=", n, ", src=", frame.Source(), ", dst=", frame.Destination(), ", type=0x", frame.Ethertype())
 
-			_, err = f.UdpConn.Write([]byte(frame))
+			_, err = f.UdpConn.Write([]byte("kuyyyy"))
 			if err != nil {
 				log.Printf("Error writing to UDP server: %v\n", err)
 				continue
