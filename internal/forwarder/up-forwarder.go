@@ -21,22 +21,22 @@ func (f *UpForwarder) Run() {
 	go func() {
 		defer f.wgGlobal.Done()
 		var frame ethernet.Frame
+		buffer := make([]byte, 1500)
 
 		for {
-			frame.Resize(1500)
-			n, err := f.Ifce.Read([]byte(frame))
+			n, err := f.Ifce.Read(buffer)
 			if err != nil {
 				log.Printf("Error reading from TAP interface: %v\n", err)
 				continue
 			}
-			frame = frame[:n]
 
+			frame = ethernet.Frame(buffer[:n])
 			if n > 0 {
 				log.Printf("TAP -> UDP: packet length=%d, src=%s, dst=%s, type=0x%x\n",
 					n, frame.Source(), frame.Destination(), frame.Ethertype())
 			}
 
-			_, err = f.UdpConn.Write([]byte(frame))
+			_, err = f.UdpConn.Write(buffer[:n])
 			if err != nil {
 				log.Printf("Error writing to UDP server: %v\n", err)
 				continue
