@@ -12,7 +12,7 @@ import (
 func main() {
 	var wg sync.WaitGroup
 
-	conn, err := udp.Connect("192.168.121.1:8080")
+	conn, err := udp.Connect("192.168.122.1:8080")
 	if err != nil {
 		log.Println("Error connecting to UDP server:", err)
 	}

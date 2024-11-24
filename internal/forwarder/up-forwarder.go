@@ -36,7 +36,7 @@ func (f *UpForwarder) Run() {
 					n, frame.Source(), frame.Destination(), frame.Ethertype())
 			}
 
-			_, err = f.UdpConn.Write([]byte("kuyyyy"))
+			_, err = f.UdpConn.Write([]byte(frame))
 			if err != nil {
 				log.Printf("Error writing to UDP server: %v\n", err)
 				continue
