@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/songgao/packets/ethernet"
 	"github.com/songgao/water"
 )
 
@@ -27,21 +28,28 @@ func main() {
 
 	fmt.Printf("Interface %s created. Starting packet capture...\n", ifce.Name())
 
-	// Buffer for reading packets
-	packet := make([]byte, 2048)
+	var frame ethernet.Frame
 
 	// Continuously read packets
+
 	for {
-		n, err := ifce.Read(packet)
+		frame.Resize(1500)
+		n, err := ifce.Read([]byte(frame))
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		frame = frame[:n]
 		// Process the packet
 		fmt.Printf("Received packet of length %d bytes\n", n)
 
 		// Print packet details in hex format
-		fmt.Printf("Packet content: %x\n", packet[:n])
+		log.Printf("Entire Frame: %v\n", frame)
+
+		log.Printf("Dst: %s\n", frame.Destination())
+		log.Printf("Src: %s\n", frame.Source())
+		log.Printf("Ethertype: % x\n", frame.Ethertype())
+		log.Printf("Payload: % x\n", frame.Payload())
 
 		// You can add more packet processing logic here
 		// For example, parsing Ethernet frames, IP headers, etc.
